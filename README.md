@@ -1,6 +1,5 @@
 C-to-Java-Compiler
 
-Le but de ce projet est de développer un compilateur qui traduit des programmes du langage de
-programmation C vers le bytecode de Java.
+A compiler to translate C programs to Java bytecode.
 
-Le langage d’entrée est un sous-ensemble réaliste, mais restreint, du langage C
+The input language is a realistic but restricted subset of C language.
