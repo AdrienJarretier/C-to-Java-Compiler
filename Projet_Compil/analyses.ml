@@ -30,10 +30,10 @@ let rec stack_depth_c = 0
 (* ****  Definite Assignment                               **** *)
 (* ************************************************************ *)
 
-module StringSet =
+module StringSet = 
   Set.Make
-    (struct type t = string
-	    let compare = Pervasives.compare
+    (struct type t = string 
+	    let compare = Pervasives.compare 
      end)
 
 let rec defassign_e a = true
