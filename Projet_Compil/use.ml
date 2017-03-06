@@ -10,6 +10,8 @@
 
 (* For using the parser:
 
+#use "use.ml";;
+
 - Evaluate this file (use.ml)
 - open Interf ;;
 - parse "Tests/even.c" ;;

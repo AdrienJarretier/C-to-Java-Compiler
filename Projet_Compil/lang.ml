@@ -31,9 +31,9 @@ type value =
 
 type var = Var of binding * vname
 
-(* expresssions. 
+(* expresssions.
    The type parameter 'a is instantiated during type inference *)
-type 'a expr = 
+type 'a expr =
     Const of 'a * value                        (* constant *)
   | VarE of 'a * var                (* variable *)
   | BinOp of 'a * binop * ('a expr) * ('a expr)   (* binary operation *)
@@ -48,13 +48,13 @@ let tp_of_expr = function
   | IfThenElse (t, _, _, _) -> t
   | CallE (t, _, _) -> t
 
-(* expresssions. 
+(* expresssions.
    The type parameter 'a is as for expresssions *)
 type 'a stmt =
     Skip
   | Assign of 'a * var * ('a expr)
   | Seq of ('a stmt) * ('a stmt)
-  | Cond of ('a expr) * ('a stmt) * ('a stmt) 
+  | Cond of ('a expr) * ('a stmt) * ('a stmt)
   | While of ('a expr) * ('a stmt)
   | CallC of fname * ('a expr list)
   | Return of ('a expr)
@@ -75,7 +75,7 @@ let tp_of_vardecl (Vardecl (t, _)) = t
 let name_of_vardecl (Vardecl (_, vn)) = vn
 
 (* function declaration: return type; parameter declarations *)
-type fundecl = 
+type fundecl =
     Fundecl of tp * fname * (vardecl list)
 
 let params_of_fundecl (Fundecl (t, fn, pds)) = pds
@@ -85,6 +85,6 @@ type 'a fundefn =
     Fundefn of fundecl * (vardecl list) * ('a stmt)
 
 (* program: global variable declarations; function definitions *)
-type 'a prog = 
+type 'a prog =
     Prog of (vardecl list) * ('a fundefn list)
 
