@@ -51,7 +51,7 @@ let pr_blogic = function
     BLand -> "iand"
   | BLor  -> "ior"
 
-let pr_bininst t = function 
+let pr_bininst t = function
     BArith b -> pr_barith t b
   | BCompar b -> failwith "no binary comparison instructions should be used"
   | BLogic b -> pr_blogic b
@@ -79,36 +79,36 @@ let pr_instr = function
   | Goto lb -> "goto "^(pr_label lb)
 
   | ReturnI t -> pr_return t
-  | Invoke (t, fn, tps) -> 
+  | Invoke (t, fn, tps) ->
       "invokestatic "^(pr_funname fn)^(pr_argtps tps)^(pr_type_descriptor t)
   | Label lb -> (pr_label lb)^":"
 
-let pr_methdecl (Methdecl (t, fn, tps)) = 
+let pr_methdecl (Methdecl (t, fn, tps)) =
   ".method static "^fn^(pr_argtps tps)^(pr_type_descriptor t)^"\n"
 
-let pr_methinfo (Methinfo (sts, ls)) = 
+let pr_methinfo (Methinfo (sts, ls)) =
   small_indentation^".limit stack "^(string_of_int sts)^"\n"^
   small_indentation^".limit locals "^(string_of_int ls)
 
 let rec pr_instrs pos = function
     [] -> "\n"
-  | (Label lb) :: ins -> 
+  | (Label lb) :: ins ->
       "\n"^small_indentation^(pr_instr (Label lb))^(pr_instrs (pos + 1) ins)
-  | i :: ins -> 
+  | i :: ins ->
       "\n"^indentation^(pr_instr i)^(pr_instrs (pos + 1) ins)
 
 let pr_methdefn (Methdefn (mdcl, minf, ins)) =
   (pr_methdecl mdcl)^(pr_methinfo minf)^(pr_instrs 0 ins)^".end method\n\n"
 
 let pr_global_vardecl (Vardecl (t, vn)) = ".field static "^vn^" "^(pr_type_descriptor t)
-let pr_global_vardecls vds = 
+let pr_global_vardecls vds =
    (List.fold_right (^) (List.map pr_global_vardecl vds) "\n")
 
-let class_prefix = 
+let class_prefix =
   ".class "^current_classname^"\n"^
     ".super java/lang/Object\n\n"
 
-let pr_jvm_prog (JVMProg (gvds, mdfs)) = 
+let pr_jvm_prog (JVMProg (gvds, mdfs)) =
   class_prefix^
   (pr_global_vardecls gvds)^
     (List.fold_right (^) (List.map pr_methdefn mdfs) "")
