@@ -13,7 +13,7 @@ type environment =
 
 
 let env = {localvar = [("k", IntT); ("n", IntT)]; globalvar = [];
-returntp = VoidT; funbind = []};;
+returntp = VoidT; funbind = [Fundecl(IntT , "f", [Vardecl(IntT , "n"); Vardecl(BoolT , "b")])]};;
 
 
 let exprNmoins2 = BinOp (0,
@@ -43,18 +43,20 @@ let ifThenElseExpr = IfThenElse (0, nEgalKPlus1, exprNmoins2, Const (0, IntV 2))
 
 
 exception UndefinedVar of string;;
+exception UndefinedFun of string;;
 exception TypeError of tp * tp;;
+exception NumberOfParametersNotMatching;;
 
 
-
+(* - : Typing.environment -> int Lang.expr -> Lang.tp Lang.expr = <fun> *)
 let rec tp_expr env = function
-	  Const (0, v) -> let constType = function
+	  (Const (_, v) : int expr) -> let constType = function
 					  BoolV _ -> BoolT
 					| IntV _ -> IntT
 					| VoidV -> VoidT in
 	  		Const (constType v, v)
 
-	| VarE (0, Var(binding, vname)) -> let rec varType varName = function
+	| VarE (_, Var(binding, vname)) -> let rec varType varName = function
 									  (name, varT)::localvars ->
 									  		if name = varName
 			  								then
@@ -64,7 +66,7 @@ let rec tp_expr env = function
 									  | _ -> raise (UndefinedVar varName) in
 			VarE (varType vname env.localvar, Var(binding, vname))
 
-	| BinOp (0, op, exp1, exp2) -> let tp1 = tp_of_expr(tp_expr env exp1)
+	| BinOp (_, op, exp1, exp2) -> let tp1 = tp_of_expr(tp_expr env exp1)
 									and tp2 = tp_of_expr(tp_expr env exp2) in
 			if tp1 = tp2
 			then
@@ -78,7 +80,7 @@ let rec tp_expr env = function
 			else
 				raise (TypeError (tp1,tp2))
 
-	| IfThenElse (0, e1, e2, e3) -> let e1Typed = tp_expr env e1
+	| IfThenElse (_, e1, e2, e3) -> let e1Typed = tp_expr env e1
 									and e2Typed = tp_expr env e2
 									and e3Typed = tp_expr env e3
 									in
@@ -92,6 +94,28 @@ let rec tp_expr env = function
 						raise (TypeError (tp2, tp3))
 				else
 					raise (TypeError (tp1, tp1))
+
+	| CallE (_, fname, exprList) -> let rec funType = function
+																		(e::eList, param::pFunDecl) ->  let eTyped = (tp_expr env e) in
+																																		let tpExpr = tp_of_expr eTyped and tpParam = tp_of_vardecl param in
+
+																																	if tpExpr = tpParam
+																																		then eTyped::funType(eList, pFunDecl)
+																																	else
+																																	raise (TypeError (tpExpr, tpParam))
+																	| ([], []) -> []
+																	| (_, _) -> raise NumberOfParametersNotMatching
+																		in
+																	let rec searchFunDecl = function
+																		(Fundecl (t, fn, pds))::funDecls ->
+																								if fn = fname
+																								then
+																									CallE (t, fn, funType (exprList, pds))
+																								else
+																									searchFunDecl funDecls
+																	| _ -> raise (UndefinedFun fname)
+																		in
+							searchFunDecl env.funbind
 ;;
 
 (*
@@ -103,6 +127,11 @@ open Analyses;;
 tp_expr;;
 
 let exprInEnv = tp_expr env;;
+
+exprInEnv (CallE(0, "f", [Const (0, IntV 3); Const (0, BoolV true)]));;
+exprInEnv (CallE(0, "f", [Const (0, IntV 3); Const (0, BoolV true); Const (0, BoolV true)]));;
+exprInEnv (CallE(0, "f", [Const (0, BoolV true)]));;
+exprInEnv (CallE(0, "f", [Const (0, BoolV true); Const (0, BoolV true)]));;
 
 exprInEnv (Const (0, IntV 2));;
 
