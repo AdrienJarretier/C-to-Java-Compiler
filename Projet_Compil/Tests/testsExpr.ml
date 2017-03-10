@@ -63,23 +63,25 @@ BinOp (0, BArith BAmul ,
 
 (* ************************* Partial Applications ************************* *)
 (**)
+(**) let outputJFile = "Tests/TestsExpr.j";;
+(**)
 (**) let typeInEnv = tp_expr env;;
 (**) let genWIthEnvVars = gen_expr env.localvar;;
-(**) let writetestsExprj = writeInFile "Tests/TestsExpr.j";;
+(**) let writetestsExprj = writeInFile outputJFile;;
 (**)
 (* ************************* Partial Applications ************************* *)
 
 (* list of instr list
     each element contains the list of instruction for an expression
 *)
-let instList = [genWIthEnvVars (typeInEnv exprNmoins2)];;
-let instList = instList@[genWIthEnvVars (typeInEnv exprXminusYplus2)];;
+let instList = [genWIthEnvVars (typeInEnv a)];;
+let instList = instList@[genWIthEnvVars (typeInEnv b)];;
 let instList = instList@[genWIthEnvVars (typeInEnv aTimesb)];;
 
 
 
 
-(* to write the maximum number of arguments just ot fill the registers *)
+(* to write the maximum number of arguments just to fill the registers *)
 let iParamsString = (let rec iStringArgument = function
                       0 -> ""
                     | n -> "I"^(iStringArgument (n-1))
@@ -121,4 +123,4 @@ let outString = outString^"
 writetestsExprj (outString);;
 
 
-print_string("generated file "^"Tests/TestsExpr.j");;
+print_string("generated file "^outputJFile);;
