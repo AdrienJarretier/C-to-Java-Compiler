@@ -102,58 +102,108 @@ let env = {localvar = [("k", IntT); ("n", IntT)]; globalvar = [];
 returntp = VoidT; funbind = [Fundecl(IntT , "f", [Vardecl(IntT , "n"); Vardecl(BoolT , "b")])]};;
 
 
-let exprNmoins2 = BinOp (0,
+(* n - 2 *)
+let exprNminus2 = BinOp (0,
 BArith BAsub ,
 VarE (0, Var (Local , "n")),
 Const (0, IntV 2));;
 
 
+(* n = (k + 1) *)
+let nEqualKPlus1 =
+BinOp (0, BCompar BCeq ,
+  VarE (0, Var (Local , "n")),
+  BinOp (0, BArith BAadd,
+    VarE (0, Var (Local , "k")),
+    Const (0, IntV 1)
+  )
+);;
+
+
+
+(* if n = (k + 1)
+    then n - 2
+    else 2
+*)
+let ifThenElseExpr =
+IfThenElse (0, nEqualKPlus1, exprNminus2, Const (0, IntV 2));;
+
+
+
+
+(* ********** Tests raising Exceptions ********** *)
+
+
+(* n && 2 *)
 let exprTypeError = BinOp (0,
 BLogic BLand ,
 VarE (0, Var (Local , "n")),
 Const (0, IntV 2));;
 
+(* n - false *)
 let exprTypeError2 = BinOp (0,
 BArith BAsub ,
 VarE (0, Var (Local , "n")),
 Const (0, BoolV false));;
 
-let nEgalKPlus1 = BinOp (0, BCompar BCeq , VarE (0, Var (Local , "n")),
-BinOp (0, BArith BAadd , VarE (0, Var (Local , "k")),
-Const (0, IntV 1)));;
+
+(* if 2           => int
+    then n - 2
+    else 2
+*)
+let ifThenElseExprTypeError =
+IfThenElse (0, Const (0, IntV 2), exprNminus2, Const (0, IntV 2));;
 
 
-let ifThenElseExprTypeError = IfThenElse (0, Const (0, IntV 2), exprNmoins2, Const (0, IntV 2));;
-let ifThenElseExprTypeError2 = IfThenElse (0, nEgalKPlus1, exprNmoins2, nEgalKPlus1);;
-let ifThenElseExpr = IfThenElse (0, nEgalKPlus1, exprNmoins2, Const (0, IntV 2));;
+(* if n = (k + 1)
+    then n - 2          => int
+    else n = (k + 1)    => bool
+*)
+let ifThenElseExprTypeError2 =
+IfThenElse (0, nEqualKPlus1, exprNminus2, nEqualKPlus1);;
+
+
+(* ********** / Tests raising Exceptions ********** *)
+
+
+
+
+
+
+(* ********** Partial application of tp_expr : ********** *)
 
 let exprInEnv = tp_expr env;;
 
+
+(* ********** using Function exprInEnv ********** *)
+
+
+
+
+exprInEnv (Const (0, IntV 2));;
+exprInEnv (VarE (0, Var (Local , "n")));;
+
+exprInEnv exprNminus2;;
+exprInEnv nEqualKPlus1;;
+exprInEnv ifThenElseExpr;;
 exprInEnv (CallE(0, "f", [Const (0, IntV 3); Const (0, BoolV true)]));;
+
+
+
+exprInEnv (VarE (0, Var (Local , "notInEnvVar")));;
+
+exprInEnv exprTypeError;;
+exprInEnv exprTypeError2;;
+exprInEnv ifThenElseExprTypeError;;
+exprInEnv ifThenElseExprTypeError2;;
 exprInEnv (CallE(0, "f", [Const (0, IntV 3); Const (0, BoolV true); Const (0, BoolV true)]));;
 exprInEnv (CallE(0, "f", [Const (0, BoolV true)]));;
 exprInEnv (CallE(0, "f", [Const (0, BoolV true); Const (0, BoolV true)]));;
 
-exprInEnv (Const (0, IntV 2));;
-
-exprInEnv (VarE (0, Var (Local , "n")));;
-exprInEnv (VarE (0, Var (Local , "notInEnvVar")));;
-
-exprInEnv exprNmoins2;;
-exprInEnv exprTypeError;;
-exprInEnv exprTypeError2;;
-
-exprInEnv nEgalKPlus1;;
-
-tp_of_expr(exprInEnv nEgalKPlus1) = IntT;;
-tp_of_expr(exprInEnv nEgalKPlus1) = BoolT;;
 
 
-exprInEnv ifThenElseExprTypeError;;
-exprInEnv ifThenElseExprTypeError2;;
-exprInEnv ifThenElseExpr;;
 
-*)
+*********************** / TESTS *********************** *)
 
 
 (* TODO: put your definitions here *)
