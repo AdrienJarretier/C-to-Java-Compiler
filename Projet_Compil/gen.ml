@@ -21,10 +21,27 @@ BinOp (IntT, BArith BAsub ,
   )
 );;
 
+let ifThenElseExpr =
+IfThenElse (IntT,
+ BinOp (BoolT, BCompar BCeq, VarE (IntT, Var (Local, "n")),
+  BinOp (IntT, BArith BAadd, VarE (IntT, Var (Local, "k")),
+   Const (IntT, IntV 1))),
+ BinOp (IntT, BArith BAsub, VarE (IntT, Var (Local, "n")),
+  Const (IntT, IntV 2)),
+ Const (IntT, IntV 2));;
+
+
+
 gen_expr [("x", IntT); ("y", IntT)] exprXminusYplus2;;
+
+
+
+gen_expr [("x", IntT); ("y", IntT)] ifThenElseExpr;;
+ --> raise an UnsupportedOperation exception;;
 
  *)
 
+exception UnsupportedOperation;;
 
 (* ************************************************************ *)
 (* **** Compilation of expressions / statements            **** *)
@@ -41,7 +58,8 @@ let rec position = function
 let rec gen_expr varList = function
     Const (t, v) -> [Loadc (t, v)]
   | VarE (t,Var (_, name)) -> [Loadv (t, position((name, t), varList))]
-  | BinOp (tp, op, e1, e2) -> (gen_expr varList e1)@(gen_expr varList e2)@[Bininst (tp, op)];;
+  | BinOp (tp, op, e1, e2) -> (gen_expr varList e1)@(gen_expr varList e2)@[Bininst (tp, op)]
+  | _ -> raise UnsupportedOperation;;
 
 
 
