@@ -30,4 +30,36 @@ the actual functions tests are at the end with a clear separation between the te
 )
 
 
+### java jasmin bytecode generation
 
+this is handled by the file : Tests/testsExpr.ml
+
+In the Ocaml interpreter paste
+
+````
+#use "use.ml";;
+open Lang;;
+#use "Tests/testsExpr.ml";;
+````
+
+This is executing the file which is calling :
+	- **tp_expr** to type the expressions at the beginning of the files (a, b and aTimesb)
+	- **gen_expr** to generate a list of intructions
+	- **pr_instrs** to generate the string in java bytecode corresponding to this list of instructions.
+
+at the end the ouput is written to **Tests/TestsExpr.j**
+
+This file can be compiled with jasmin
+````
+cd Tests/
+java -jar jasmin.jar TestsExpr.j
+````
+
+Then tested with WrapperTestsExpr
+````
+javac WrapperTestsExpr.java
+java WrapperTestsExpr
+````
+
+The wrapper is filling the register by giving 9, 3, 6 and 12 to the method
+which correspond to (3 - 2) * (6 - (12 + 2)) = -8
