@@ -1,7 +1,6 @@
-
 (*
 
-Write this in Ocaml interpreter :
+Write this in Ocaml interpreter (run it from Projet_Compil dir) :
 
 #use "use.ml";;
 open Lang;;
@@ -29,6 +28,12 @@ let writeInFile outfile s =
  	output_string outf s ; flush outf
 ;;
 
+(* get length of list *)
+let rec length = function
+    t::l -> 1 + (length l)
+  | _ -> 0
+;;
+
 
 
 (* n - 2 *)
@@ -39,12 +44,31 @@ Const (0, IntV 2));;
 
 
 
-(* partial applications *)
-let typeInEnv = tp_expr env;;
-let genWIthEnvVars = gen_expr env.localvar;;
+(* ************************* Partial Applications ************************* *)
+(**)
+(**) let typeInEnv = tp_expr env;;
+(**) let genWIthEnvVars = gen_expr env.localvar;;
+(**) let writetestsExprj = writeInFile "Tests/TestsExpr.j";;
+(**)
+(* ************************* Partial Applications ************************* *)
+
+let instructions = genWIthEnvVars (typeInEnv exprNmoins2);;
+
+let outString = ".class TestsExpr
+.super java/lang/Object
+
+.method static test(II)I
+  .limit stack "^string_of_int(length instructions)^"
+  .limit locals "^string_of_int(length env.localvar);;
+
+let outString = outString^(pr_instrs 0 (instructions));;
+
+let outString = outString^"
+	ireturn
+.end method";;
 
 
+writetestsExprj (outString);;
 
-writeInFile "Tests/testsExpr.j" (pr_instrs 0 (genWIthEnvVars (typeInEnv exprNmoins2)));;
 
-print_string("generated file "^"Tests/testsExpr.j");;
+print_string("generated file "^"Tests/TestsExpr.j");;
