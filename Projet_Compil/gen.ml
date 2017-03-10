@@ -4,42 +4,6 @@ open Lang
 open Analyses
 open Instrs
 
-(* *********************** TESTS ***********************
-
-#use "use.ml";;
-open Gen;;
-open Lang;;
-
-gen_expr;;
-
-let exprXminusYplus2 =
-BinOp (IntT, BArith BAsub ,
-  VarE (IntT, Var (Local , "x")),
-  BinOp (IntT, BArith BAadd,
-    VarE (IntT, Var (Local , "y")),
-    Const (IntT, IntV 2)
-  )
-);;
-
-let ifThenElseExpr =
-IfThenElse (IntT,
- BinOp (BoolT, BCompar BCeq, VarE (IntT, Var (Local, "n")),
-  BinOp (IntT, BArith BAadd, VarE (IntT, Var (Local, "k")),
-   Const (IntT, IntV 1))),
- BinOp (IntT, BArith BAsub, VarE (IntT, Var (Local, "n")),
-  Const (IntT, IntV 2)),
- Const (IntT, IntV 2));;
-
-
-
-gen_expr [("x", IntT); ("y", IntT)] exprXminusYplus2;;
-
-
-
-gen_expr [("x", IntT); ("y", IntT)] ifThenElseExpr;;
- --> raise an UnsupportedOperation exception;;
-
- *)
 
 exception UnsupportedOperation;;
 
@@ -72,4 +36,56 @@ let gen_prog (Prog (gvds, fdfs)) =
            [Methdefn (Methdecl (IntT, "even", [IntT]),
                       Methinfo (3, 1),
                       [Loadc (IntT, IntV 0); ReturnI IntT])])
+
+
+
+(* *********************** TESTS ***********************
+
+#use "use.ml";;
+open Gen;;
+open Lang;;
+
+gen_expr;;
+
+
+(* those expressions are already typed, they result from Typing.tp_expr *)
+
+
+(* x - (y + 2) *)
+let exprXminusYplus2 =
+BinOp (IntT, BArith BAsub ,
+  VarE (IntT, Var (Local , "x")),
+  BinOp (IntT, BArith BAadd,
+    VarE (IntT, Var (Local , "y")),
+    Const (IntT, IntV 2)
+  )
+);;
+
+
+(* if n = (k + 1)
+    then n + 2
+    else 2
+*)
+let ifThenElseExpr =
+IfThenElse (IntT,
+ BinOp (BoolT, BCompar BCeq, VarE (IntT, Var (Local, "n")),
+  BinOp (IntT, BArith BAadd, VarE (IntT, Var (Local, "k")),
+   Const (IntT, IntV 1))),
+ BinOp (IntT, BArith BAsub, VarE (IntT, Var (Local, "n")),
+  Const (IntT, IntV 2)),
+ Const (IntT, IntV 2));;
+
+
+
+gen_expr [("x", IntT); ("y", IntT)] exprXminusYplus2;;
+
+
+
+(* ****** Raises an UnsupportedOperation exception ****** *)
+
+gen_expr [("x", IntT); ("y", IntT)] ifThenElseExpr;;
+
+
+
+*********************** / TESTS *********************** *)
 
