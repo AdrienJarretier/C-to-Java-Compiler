@@ -34,12 +34,13 @@ the actual functions tests are at the end with a clear separation between the te
 
 this is handled by the file : Tests/testsExpr.ml
 
-In the Ocaml interpreter paste
+In the *Ocaml interpreter* paste
 
 ````
 #use "use.ml";;
 open Lang;;
 #use "Tests/testsExpr.ml";;
+exit 0;;
 ````
 
 This is executing the file which is calling :
