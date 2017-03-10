@@ -2,11 +2,14 @@ import java.util.Scanner;
 
 public class WrapperTestsExpr {
 
-    public static void main(String[] args){
+    public static void main(String[] args) {
 
-        int i;
-        i = TestsExpr.test(5, 5);
-        System.out.println("result: "+ i);
+    	// should return (3 - 2) * (6 - (12 + 2))
+
+    	//  		   =    1   *    - 8 =  -8
+
+        int returnValue = TestsExpr.test(9,3,6,12);
+        System.out.println("result: "+ returnValue);
 
     }
 
