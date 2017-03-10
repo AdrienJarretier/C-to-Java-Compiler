@@ -12,36 +12,6 @@ type environment =
      funbind: fundecl list}
 
 
-let env = {localvar = [("k", IntT); ("n", IntT)]; globalvar = [];
-returntp = VoidT; funbind = [Fundecl(IntT , "f", [Vardecl(IntT , "n"); Vardecl(BoolT , "b")])]};;
-
-
-let exprNmoins2 = BinOp (0,
-BArith BAsub ,
-VarE (0, Var (Local , "n")),
-Const (0, IntV 2));;
-
-
-let exprTypeError = BinOp (0,
-BLogic BLand ,
-VarE (0, Var (Local , "n")),
-Const (0, IntV 2));;
-
-let exprTypeError2 = BinOp (0,
-BArith BAsub ,
-VarE (0, Var (Local , "n")),
-Const (0, BoolV false));;
-
-let nEgalKPlus1 = BinOp (0, BCompar BCeq , VarE (0, Var (Local , "n")),
-BinOp (0, BArith BAadd , VarE (0, Var (Local , "k")),
-Const (0, IntV 1)));;
-
-
-let ifThenElseExprTypeError = IfThenElse (0, Const (0, IntV 2), exprNmoins2, Const (0, IntV 2));;
-let ifThenElseExprTypeError2 = IfThenElse (0, nEgalKPlus1, exprNmoins2, nEgalKPlus1);;
-let ifThenElseExpr = IfThenElse (0, nEgalKPlus1, exprNmoins2, Const (0, IntV 2));;
-
-
 exception UndefinedVar of string;;
 exception UndefinedFun of string;;
 exception TypeError of tp * tp;;
@@ -118,13 +88,44 @@ let rec tp_expr env = function
       searchFunDecl env.funbind
 ;;
 
-(*
+(* *********************** TESTS ***********************
+
 #use "use.ml";;
 open Typing;;
 open Lang;;
 open Analyses;;
 
 tp_expr;;
+
+
+let env = {localvar = [("k", IntT); ("n", IntT)]; globalvar = [];
+returntp = VoidT; funbind = [Fundecl(IntT , "f", [Vardecl(IntT , "n"); Vardecl(BoolT , "b")])]};;
+
+
+let exprNmoins2 = BinOp (0,
+BArith BAsub ,
+VarE (0, Var (Local , "n")),
+Const (0, IntV 2));;
+
+
+let exprTypeError = BinOp (0,
+BLogic BLand ,
+VarE (0, Var (Local , "n")),
+Const (0, IntV 2));;
+
+let exprTypeError2 = BinOp (0,
+BArith BAsub ,
+VarE (0, Var (Local , "n")),
+Const (0, BoolV false));;
+
+let nEgalKPlus1 = BinOp (0, BCompar BCeq , VarE (0, Var (Local , "n")),
+BinOp (0, BArith BAadd , VarE (0, Var (Local , "k")),
+Const (0, IntV 1)));;
+
+
+let ifThenElseExprTypeError = IfThenElse (0, Const (0, IntV 2), exprNmoins2, Const (0, IntV 2));;
+let ifThenElseExprTypeError2 = IfThenElse (0, nEgalKPlus1, exprNmoins2, nEgalKPlus1);;
+let ifThenElseExpr = IfThenElse (0, nEgalKPlus1, exprNmoins2, Const (0, IntV 2));;
 
 let exprInEnv = tp_expr env;;
 

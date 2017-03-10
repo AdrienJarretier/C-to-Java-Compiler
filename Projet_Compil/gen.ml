@@ -12,10 +12,6 @@ open Lang;;
 
 gen_expr;;
 
-gen_expr [("x", IntT); ("y", IntT)] exprXminusYplus2;;
-
- *)
-
 let exprXminusYplus2 =
 BinOp (IntT, BArith BAsub ,
   VarE (IntT, Var (Local , "x")),
@@ -24,6 +20,11 @@ BinOp (IntT, BArith BAsub ,
     Const (IntT, IntV 2)
   )
 );;
+
+gen_expr [("x", IntT); ("y", IntT)] exprXminusYplus2;;
+
+ *)
+
 
 (* ************************************************************ *)
 (* **** Compilation of expressions / statements            **** *)
