@@ -1,4 +1,4 @@
-#C-to-Java-Compile
+#C-to-Java-Compiler
 
 ## Author
 
