@@ -88,6 +88,73 @@ let rec tp_expr env = function
       searchFunDecl env.funbind
 ;;
 
+let rec tp_stmt env = function
+
+    Skip -> Skip
+
+  | Assign (_, Var(binding, vname), exp) -> let rec varType varName = function
+                    (name, varT)::localvars ->
+                        if name = varName
+                        then
+                          varT
+                        else
+                          (varType varName localvars)
+                    | _ -> raise (UndefinedVar varName)
+                  in
+                let typedExpr = (tp_expr env exp) in
+            if tp_of_expr(typedExpr) = (varType vname env.localvar)
+            then
+              Assign(VoidT, Var(binding, vname), typedExpr)
+            else
+              raise (TypeError (tp_of_expr typedExpr, tp_of_expr typedExpr))
+
+| Seq (stmt1 , stmt2) -> Seq((tp_stmt env stmt1), (tp_stmt env stmt2))
+
+| Cond (exp, stmt1, stmt2) -> let typedExpr = (tp_expr env exp) in
+                            if tp_of_expr(typedExpr)=BoolT
+                            then
+                              Cond(typedExpr, (tp_stmt env stmt1), (tp_stmt env stmt2))
+                            else
+                              raise (TypeError (tp_of_expr typedExpr, BoolT))
+
+| While (exp, stmt) -> let typedExpr = (tp_expr env exp) in
+                    if tp_of_expr(typedExpr) = BoolT
+                    then
+                      While(typedExpr, (tp_stmt env stmt))
+                    else
+                      raise (TypeError (tp_of_expr typedExpr, BoolT))
+
+| CallC (fname, exprList) ->
+                    let rec searchFunDecl = function
+                      (Fundecl (t, fn, pds))::funDecls ->
+                              if fn = fname
+                              then
+                                  let rec tpListe = function
+                                    (exp::liste, param::paramList) ->
+                                      let typedExpr = tp_expr env exp in
+                                        if tp_of_expr(typedExpr) = tp_of_vardecl(param)
+                                        then
+                                          (typedExpr)::(tpListe(liste,paramList))
+                                        else
+                                          raise (TypeError (tp_of_expr(typedExpr), tp_of_vardecl(param)))
+                                    | ([], []) -> []
+                                    | (_, _) -> raise NumberOfParametersNotMatching
+                                  in
+                                tpListe(exprList,pds)
+                              else
+                                searchFunDecl funDecls
+                      | _ -> raise (UndefinedFun fname)
+                      in
+                  CallC(fname, searchFunDecl env.funbind)
+
+| Return (exp) -> let typedExpr = tp_expr env exp in
+                if tp_of_expr(typedExpr) = env.returntp
+                then
+                  Return (typedExpr)
+                else
+                  raise (TypeError (tp_of_expr(typedExpr), env.returntp))
+;;
+
 (* *********************** TESTS ***********************
 
 #use "use.ml";;
