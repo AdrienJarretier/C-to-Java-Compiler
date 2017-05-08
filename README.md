@@ -12,7 +12,6 @@ The input language is a realistic but restricted subset of C language.
 
 *For this project I worked in collaboration with Laurie Houseaux*
 
-
 ##Build the project
 
 Go into Projet_compil and run make :
@@ -37,6 +36,19 @@ there are the use and open directives, then global definitions,
 the actual functions tests are at the end with a clear separation between the tests raising exceptions as expected and the other ones.
 )
 
+### tp_prog
+
+
+In the *Ocaml interpreter* paste
+```
+#use "use.ml";;
+open Interf;;
+open Lang;;
+#use "typing.ml";;
+```
+
+`tp_prog (parse "Tests/even.c");;` or `tp_prog (parse "Tests/even2.c");;`
+
 
 ### java jasmin bytecode generation
 
@@ -52,9 +64,9 @@ exit 0;;
 ````
 
 This is executing the file which is calling :
-	- **tp_expr** to type the expressions at the beginning of the files (a, b and aTimesb)
-	- **gen_expr** to generate a list of intructions
-	- **pr_instrs** to generate the string in java bytecode corresponding to this list of instructions.
+  - **tp_expr** to type the expressions at the beginning of the files (a, b and aTimesb)
+  - **gen_expr** to generate a list of intructions
+  - **pr_instrs** to generate the string in java bytecode corresponding to this list of instructions.
 
 at the end the ouput is written to **Tests/TestsExpr.j**
 

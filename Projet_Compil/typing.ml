@@ -155,6 +155,37 @@ let rec tp_stmt env = function
                   raise (TypeError (tp_of_expr(typedExpr), env.returntp))
 ;;
 
+let rec checkVarDecls = function
+    ((Vardecl (tp, vname))::varDecls) ->
+      let rec vnameExistsAlready = function
+          ((Vardecl (tpHead, vnameHead))::varDeclsRemaining) ->
+            vname = vnameHead || (vnameExistsAlready varDeclsRemaining)
+        | _ -> false
+      in
+      tp != VoidT && not (vnameExistsAlready varDecls) && (checkVarDecls varDecls)
+  | _ -> true
+;;
+
+let tp_fdefn env = function (Fundefn(Fundecl(tpRet,fname,params),locVars,body)) ->
+  let allLocVars = params@locVars in
+
+    if (checkVarDecls allLocVars)
+    then
+      let rec aux = function
+          ((Vardecl (tp, vname))::varDecls) ->
+            (vname, tp)::(aux varDecls)
+        | _ -> []
+      in let envT = {localvar = aux(allLocVars)@env.localvar;
+        globalvar = env.globalvar;
+        returntp = tpRet;
+        funbind = env.funbind}
+      in
+      (Fundefn(Fundecl(tpRet,fname,params),locVars,(tp_stmt envT body)))
+    else
+      raise (TypeError(VoidT, VoidT));;
+
+
+
 (* *********************** TESTS ***********************
 
 #use "use.ml";;
@@ -274,8 +305,39 @@ exprInEnv (CallE(0, "f", [Const (0, BoolV true); Const (0, BoolV true)]));;
 
 
 (* TODO: put your definitions here *)
-let tp_prog (Prog (gvds, fdfs)) =
-  Prog([],
-       [Fundefn (Fundecl (BoolT, "even", [Vardecl (IntT, "n")]), [], Skip)])
+let tp_prog = function
+  (Prog (gvds, fdfs)) ->
+
+  if (checkVarDecls gvds)
+  then
+
+    let rec aux = function
+        ((Vardecl (tp, vname))::varDecls) ->
+          (vname, tp)::(aux varDecls)
+      | _ -> []
+
+    in
+
+    let rec auxFunbind = function
+        ((Fundefn (fundecl,_,_))::funDefs) ->
+          fundecl::(auxFunbind funDefs)
+      | _ -> []
+
+    in let env0 = {localvar = [];
+      globalvar = (aux gvds);
+      returntp = VoidT;
+      funbind = (auxFunbind fdfs)}
+
+    in
+
+    let rec typeFunctions = function
+        (fundefn::fundefnList) -> (tp_fdefn env0 fundefn)::(typeFunctions fundefnList)
+      | _ -> []
+    in
+
+    Prog(gvds, (typeFunctions fdfs))
+
+  else
+    raise (TypeError(VoidT, VoidT))
 ;;
 
